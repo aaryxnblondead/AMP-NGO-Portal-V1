@@ -1,11 +1,16 @@
 import React, { useState, useMemo } from 'react';
-import { View, Text, StyleSheet, FlatList, Image, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Dimensions, ScrollView } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { FlashList } from '@shopify/flash-list';
 import { colors } from '../theme/colors';
 import { Input } from '../components/Input';
-import { Button } from '../components/Button';
-import { MOCK_NGOS, CATEGORIES, NGO } from '../data/mockData';
+import { NGOCard } from '../components/NGOCard';
+import { EmptyState } from '../components/EmptyState';
+import { MOCK_NGOS, CATEGORIES } from '../data/mockData';
 
-export const SearchScreen = () => {
+const { width } = Dimensions.get('window');
+
+export const SearchScreen = ({ navigation }: any) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
 
@@ -19,76 +24,60 @@ export const SearchScreen = () => {
     });
   }, [searchQuery, selectedCategory]);
 
-  const renderNGOItem = ({ item }: { item: NGO }) => (
-    <View style={styles.card}>
-      <View style={styles.cardHeader}>
-        <View style={styles.categoryTag}>
-          <Text style={styles.categoryText}>{item.category}</Text>
-        </View>
-        <Text style={[styles.statusText, { color: item.status === 'Active' ? colors.success : colors.error }]}>
-          {item.status === 'Active' ? '● Active' : '● Pending'}
-        </Text>
-      </View>
-      
-      <View style={styles.cardContent}>
-        <Image source={{ uri: item.image }} style={styles.image} />
-        <View style={styles.info}>
-          <Text style={styles.name}>{item.name}</Text>
-          <Text style={styles.description} numberOfLines={2}>{item.description}</Text>
-          
-          <View style={styles.metaRow}>
-            <Text style={styles.metaText}>📍 {item.location}</Text>
-          </View>
-          <View style={styles.metaRow}>
-            <Text style={styles.metaText}>👥 {item.beneficiaries.toLocaleString()} beneficiaries reached</Text>
-          </View>
-        </View>
-      </View>
-
-      <View style={styles.cardFooter}>
-        <Button title="View Details" onPress={() => {}} style={styles.viewButton} />
-      </View>
+  const renderHeader = () => (
+    <View style={styles.searchSection}>
+      <Input 
+        placeholder="Search NGOs..." 
+        value={searchQuery}
+        onChangeText={setSearchQuery}
+        style={styles.searchInput}
+      />
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.categoryScroll}>
+        <TouchableOpacity 
+          style={[styles.categoryChip, styles.filterChip]}
+          onPress={() => alert('Filter Modal Placeholder')}
+        >
+          <Text style={styles.filterChipText}>⚡ Filters</Text>
+        </TouchableOpacity>
+        {CATEGORIES.map((cat) => (
+          <TouchableOpacity 
+            key={cat} 
+            style={[styles.categoryChip, selectedCategory === cat && styles.categoryChipActive]}
+            onPress={() => setSelectedCategory(cat)}
+          >
+            <Text style={[styles.categoryChipText, selectedCategory === cat && styles.categoryChipTextActive]}>
+              {cat}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
     </View>
   );
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>View your NGO information</Text>
-        <Text style={styles.subtitle}>NGO Dashboard</Text>
+        <SafeAreaView edges={['top']}>
+          <Text style={styles.title}>Find NGOs</Text>
+        </SafeAreaView>
       </View>
 
-      <View style={styles.searchSection}>
-        <Input 
-          placeholder="Search NGOs by name, location, or keywords..." 
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-          style={styles.searchInput}
-        />
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.categoryScroll}>
-          {CATEGORIES.map((cat) => (
-            <TouchableOpacity 
-              key={cat} 
-              style={[styles.categoryChip, selectedCategory === cat && styles.categoryChipActive]}
-              onPress={() => setSelectedCategory(cat)}
-            >
-              <Text style={[styles.categoryChipText, selectedCategory === cat && styles.categoryChipTextActive]}>
-                {cat}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
-      </View>
-
-      <FlatList
+      <FlashList
         data={filteredNGOs}
-        renderItem={renderNGOItem}
+        renderItem={({ item }) => (
+          <NGOCard ngo={item} onPress={() => navigation.navigate('NGODetails', { ngo: item })} />
+        )}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.listContent}
+        ListHeaderComponent={renderHeader}
+        estimatedItemSize={300}
         ListEmptyComponent={
-          <View style={styles.emptyState}>
-            <Text style={styles.emptyText}>No NGOs found matching your criteria.</Text>
-          </View>
+          <EmptyState 
+            title="No NGOs Found" 
+            message={`We couldn't find any NGOs matching "${searchQuery}". Try adjusting your filters.`}
+            onRetry={() => { setSearchQuery(''); setSelectedCategory('All'); }}
+            retryLabel="Clear Filters"
+          />
         }
       />
     </View>
@@ -101,27 +90,32 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background,
   },
   header: {
-    padding: 20,
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
     backgroundColor: colors.white,
+    zIndex: 10,
+    paddingBottom: 10,
     borderBottomWidth: 1,
     borderBottomColor: colors.lightGray,
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: 90,
   },
   title: {
-    fontSize: 24,
+    fontSize: 18,
     fontWeight: 'bold',
     color: colors.primary,
-    textAlign: 'center',
-    fontFamily: 'System', // Use a cursive font if available, or import one
+    marginTop: 10,
   },
-  subtitle: {
-    fontSize: 14,
-    color: colors.gray,
-    textAlign: 'center',
-    marginTop: 4,
+  listContent: {
+    paddingTop: 100, // Space for header
+    paddingBottom: 20,
   },
   searchSection: {
     padding: 16,
-    backgroundColor: colors.white,
+    backgroundColor: colors.background,
   },
   searchInput: {
     marginBottom: 12,
@@ -133,11 +127,22 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 20,
-    backgroundColor: colors.lightGray,
+    backgroundColor: colors.white,
     marginRight: 8,
+    borderWidth: 1,
+    borderColor: colors.lightGray,
+  },
+  filterChip: {
+    backgroundColor: colors.secondary,
+    borderColor: colors.secondary,
+  },
+  filterChipText: {
+    color: colors.white,
+    fontWeight: 'bold',
   },
   categoryChipActive: {
     backgroundColor: colors.primary,
+    borderColor: colors.primary,
   },
   categoryChipText: {
     color: colors.text,
@@ -145,95 +150,5 @@ const styles = StyleSheet.create({
   },
   categoryChipTextActive: {
     color: colors.white,
-  },
-  listContent: {
-    padding: 16,
-  },
-  card: {
-    backgroundColor: colors.white,
-    borderRadius: 12,
-    marginBottom: 16,
-    padding: 16,
-    borderWidth: 1,
-    borderColor: colors.lightGray,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  cardHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  categoryTag: {
-    backgroundColor: '#FFF0F0',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 4,
-    borderWidth: 1,
-    borderColor: '#FFD0D0',
-  },
-  categoryText: {
-    color: colors.primary,
-    fontSize: 12,
-    fontWeight: '600',
-  },
-  statusText: {
-    fontSize: 12,
-    fontWeight: '600',
-  },
-  cardContent: {
-    flexDirection: 'row',
-    marginBottom: 16,
-  },
-  image: {
-    width: 80,
-    height: 80,
-    borderRadius: 8,
-    backgroundColor: colors.lightGray,
-  },
-  info: {
-    flex: 1,
-    marginLeft: 12,
-  },
-  name: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: colors.text,
-    marginBottom: 4,
-  },
-  description: {
-    fontSize: 12,
-    color: colors.gray,
-    marginBottom: 8,
-  },
-  metaRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 2,
-  },
-  metaText: {
-    fontSize: 12,
-    color: colors.secondary,
-  },
-  cardFooter: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-  },
-  viewButton: {
-    width: 'auto',
-    height: 36,
-    paddingHorizontal: 16,
-  },
-  emptyState: {
-    padding: 40,
-    alignItems: 'center',
-  },
-  emptyText: {
-    color: colors.gray,
-    fontSize: 16,
   },
 });

@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { colors } from '../theme/colors';
 import { Button } from '../components/Button';
 
-export const ProfileScreen = () => {
+export const ProfileScreen = ({ navigation }: any) => {
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.header}>
@@ -26,7 +26,7 @@ export const ProfileScreen = () => {
 
       <View style={styles.section}>
         <Button title="Edit Profile" variant="outline" onPress={() => {}} style={{ width: '100%' }} />
-        <Button title="Logout" variant="secondary" style={{ marginTop: 12, width: '100%' }} onPress={() => {}} />
+        <Button title="Logout" variant="secondary" style={{ marginTop: 12, width: '100%' }} onPress={() => navigation.navigate('Login')} />
       </View>
     </ScrollView>
   );

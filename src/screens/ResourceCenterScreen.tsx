@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
+import { FlashList } from '@shopify/flash-list';
 import { colors } from '../theme/colors';
+import { ResourceCard } from '../components/ResourceCard';
 import { WebinarRegistrationModal } from '../components/WebinarRegistrationModal';
 
 const RESOURCES = [
@@ -24,30 +26,18 @@ export const ResourceCenterScreen = () => {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>Resource Centre for NGOs</Text>
+        <Text style={styles.title}>Resource Centre</Text>
         <Text style={styles.subtitle}>Empowering non-profits with knowledge, tools, and guidance.</Text>
       </View>
       
-      <ScrollView contentContainerStyle={styles.content}>
-        <View style={styles.grid}>
-          {RESOURCES.map((item, index) => (
-            <TouchableOpacity 
-              key={index} 
-              style={styles.card}
-              onPress={() => handleCardPress(item)}
-            >
-              <View style={styles.iconContainer}>
-                <Text style={styles.icon}>{item.icon}</Text>
-              </View>
-              <Text style={styles.cardTitle}>{item.title}</Text>
-              <Text style={styles.cardDesc}>{item.desc}</Text>
-              <View style={styles.readMore}>
-                <Text style={styles.readMoreText}>Read More</Text>
-              </View>
-            </TouchableOpacity>
-          ))}
-        </View>
-      </ScrollView>
+      <FlashList
+        data={RESOURCES}
+        renderItem={({ item }) => (
+          <ResourceCard resource={item} onPress={() => handleCardPress(item)} />
+        )}
+        estimatedItemSize={100}
+        contentContainerStyle={styles.listContent}
+      />
 
       <WebinarRegistrationModal 
         visible={modalVisible} 
@@ -65,12 +55,13 @@ const styles = StyleSheet.create({
   header: {
     padding: 20,
     backgroundColor: colors.white,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.lightGray,
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
     color: colors.primary,
-    fontFamily: 'System',
     marginBottom: 8,
   },
   subtitle: {
@@ -78,56 +69,7 @@ const styles = StyleSheet.create({
     color: colors.gray,
     lineHeight: 20,
   },
-  content: {
-    padding: 16,
-  },
-  grid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-  },
-  card: {
-    width: '48%',
-    backgroundColor: colors.white,
-    padding: 16,
-    borderRadius: 8,
-    marginBottom: 16,
-    borderWidth: 1,
-    borderColor: colors.lightGray,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  iconContainer: {
-    marginBottom: 12,
-  },
-  icon: {
-    fontSize: 24,
-  },
-  cardTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: colors.text,
-    marginBottom: 8,
-  },
-  cardDesc: {
-    fontSize: 12,
-    color: colors.gray,
-    marginBottom: 12,
-    lineHeight: 16,
-  },
-  readMore: {
-    backgroundColor: colors.secondary,
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: 4,
-    alignSelf: 'flex-start',
-  },
-  readMoreText: {
-    color: colors.white,
-    fontSize: 10,
-    fontWeight: '600',
+  listContent: {
+    paddingVertical: 16,
   },
 });

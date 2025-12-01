@@ -1,11 +1,17 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, ImageBackground, Image, FlatList } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ImageBackground, Dimensions, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { FlashList } from '@shopify/flash-list';
 import { colors } from '../theme/colors';
 import { Button } from '../components/Button';
-import { MOCK_NGOS, UPCOMING_EVENTS, SUCCESS_STORIES, NGO_OF_THE_MONTH } from '../data/mockData';
+import { NGOCard } from '../components/NGOCard';
+import { EventCard } from '../components/EventCard';
+import { MOCK_NGOS, UPCOMING_EVENTS, NGO_OF_THE_MONTH } from '../data/mockData';
+
+const { width } = Dimensions.get('window');
 
 export const HomeScreen = ({ navigation }: any) => {
+
   const partnerCards = [
     { 
       title: 'Register Your NGO', 
@@ -36,55 +42,35 @@ export const HomeScreen = ({ navigation }: any) => {
     },
   ];
 
-  const renderFeaturedNGO = ({ item }: any) => (
-    <View style={styles.featuredCard}>
-      <Image source={{ uri: item.image }} style={styles.featuredImage} />
-      <View style={styles.featuredContent}>
-        <View style={styles.featuredHeader}>
-          <Text style={styles.featuredCategory}>{item.category}</Text>
-          {item.verified && <Text style={styles.verifiedBadge}>✓ Verified</Text>}
-        </View>
-        <Text style={styles.featuredTitle}>{item.name}</Text>
-        <Text style={styles.featuredDesc} numberOfLines={2}>{item.description}</Text>
-        <TouchableOpacity onPress={() => navigation.navigate('NGODetails', { ngo: item })}>
-          <Text style={styles.readMoreLink}>→ Read More</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
-  );
-
-  const renderEventCard = ({ item }: any) => (
-    <View style={styles.eventCard}>
-      <ImageBackground source={{ uri: item.image }} style={styles.eventImage} imageStyle={{ borderRadius: 8 }}>
-        <View style={styles.eventDateBadge}>
-          <Text style={styles.eventDateText}>{item.date}</Text>
-        </View>
-        <View style={styles.eventOverlay}>
-          <Text style={styles.eventMeta}>🕒 {item.time}  📍 {item.location}</Text>
-          <Text style={styles.eventTitle}>{item.title}</Text>
-        </View>
-      </ImageBackground>
-    </View>
-  );
-
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+    <View style={styles.container}>
+      {/* Sticky Header */}
+      <View style={styles.stickyHeader}>
+        <SafeAreaView edges={['top']} style={styles.stickyHeaderContent}>
+          <Text style={styles.stickyHeaderTitle}>AMP NGO Connect</Text>
+        </SafeAreaView>
+      </View>
+
+      <ScrollView 
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
         {/* Header */}
-        <View style={styles.header}>
+        <SafeAreaView edges={['top']} style={styles.header}>
           <Text style={styles.logoText}>AMP NGO Connect</Text>
-          <View style={styles.headerRight}>
-             <Button title="Login" variant="outline" style={styles.loginBtn} onPress={() => navigation.navigate('Login')} />
-             <Button title="Register" style={styles.registerBtn} onPress={() => navigation.navigate('Registration')} />
-          </View>
-        </View>
+          <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
+             <View style={styles.profileIcon}>
+               <Text style={styles.profileInitials}>U</Text>
+             </View>
+          </TouchableOpacity>
+        </SafeAreaView>
 
         {/* Hero Section */}
         <View style={styles.heroContainer}>
           <ImageBackground 
             source={{ uri: 'https://via.placeholder.com/800x400' }} 
             style={styles.heroBackground}
-            imageStyle={{ borderRadius: 0, opacity: 0.7, backgroundColor: 'black' }}
+            imageStyle={{ opacity: 0.7, backgroundColor: 'black' }}
           >
             <View style={styles.heroContent}>
               <Text style={styles.heroPreTitle}>NGO Connect</Text>
@@ -108,17 +94,13 @@ export const HomeScreen = ({ navigation }: any) => {
           </Text>
           <View style={styles.welcomeActions}>
              <Button title="Discover More" variant="secondary" style={styles.discoverButton} onPress={() => navigation.navigate('About')} />
-             <View style={styles.statRow}>
-                <Text style={styles.statText}>Start Donating</Text>
-                <Text style={styles.statSubText}>Start giving today even if it's small.</Text>
-             </View>
           </View>
         </View>
 
         {/* Partner With Us Section */}
         <View style={styles.section}>
           <Text style={styles.cursiveHeader}>Partner With Us</Text>
-          <Text style={styles.sectionSubHeader}>Join our network of change makers and contribute to meaningful social impact initiatives</Text>
+          <Text style={styles.sectionSubHeader}>Join our network of change makers</Text>
           
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.cardsScroll}>
             {partnerCards.map((card, index) => (
@@ -128,11 +110,6 @@ export const HomeScreen = ({ navigation }: any) => {
                    <Text style={styles.cardTitle}>{card.title}</Text>
                 </View>
                 <Text style={styles.cardDesc}>{card.desc}</Text>
-                <View style={styles.featureList}>
-                  {card.features.map((feat, i) => (
-                    <Text key={i} style={styles.featureItem}>✓ {feat}</Text>
-                  ))}
-                </View>
                 <Button 
                   title={card.action} 
                   onPress={() => navigation.navigate(card.route)}
@@ -148,260 +125,213 @@ export const HomeScreen = ({ navigation }: any) => {
         {/* Featured NGOs */}
         <View style={styles.section}>
           <Text style={styles.cursiveHeader}>Featured NGOs</Text>
-          <Text style={styles.sectionSubHeader}>Discover verified organizations making a significant impact</Text>
-          <FlatList 
-            data={MOCK_NGOS}
-            renderItem={renderFeaturedNGO}
-            keyExtractor={item => item.id}
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.horizontalList}
-          />
+          <Text style={styles.sectionSubHeader}>Discover verified organizations</Text>
+          <View style={{ height: 320, width: width }}>
+            <FlashList 
+              data={MOCK_NGOS}
+              renderItem={({ item }) => (
+                <View style={{ width: width * 0.85, marginRight: 16 }}>
+                  <NGOCard ngo={item} onPress={() => navigation.navigate('NGODetails', { ngo: item })} />
+                </View>
+              )}
+              estimatedItemSize={300}
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.horizontalList}
+            />
+          </View>
         </View>
 
         {/* NGO of the Month & Upcoming Events */}
-        <View style={styles.splitSection}>
+        <View style={styles.section}>
            <View style={styles.ngoMonthContainer}>
               <Text style={styles.cursiveHeader}>NGO of the Month</Text>
               <Text style={styles.ngoMonthName}>{NGO_OF_THE_MONTH.name}</Text>
-              {NGO_OF_THE_MONTH.stats.map((stat, i) => (
-                 <Text key={i} style={styles.ngoStat}>✓ {stat}</Text>
-              ))}
               <Button title="View Profile" style={styles.viewProfileBtn} onPress={() => navigation.navigate('NGODetails', { ngo: NGO_OF_THE_MONTH })} />
            </View>
            
            <View style={styles.eventsContainer}>
               <Text style={styles.cursiveHeader}>Upcoming Events</Text>
-              <FlatList 
-                data={UPCOMING_EVENTS}
-                renderItem={renderEventCard}
-                keyExtractor={item => item.id}
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={styles.horizontalList}
-              />
+              <View style={{ height: 240, width: width }}>
+                <FlashList 
+                  data={UPCOMING_EVENTS}
+                  renderItem={({ item }) => (
+                    <View style={{ width: width * 0.85, marginRight: 16 }}>
+                      <EventCard event={item} onPress={() => {}} />
+                    </View>
+                  )}
+                  estimatedItemSize={220}
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={styles.horizontalList}
+                />
+              </View>
               <Button title="View All Events" variant="secondary" style={styles.viewAllEventsBtn} onPress={() => navigation.navigate('Events')} />
            </View>
         </View>
-
-        {/* Resource Center Preview */}
-        <View style={styles.section}>
-          <View style={styles.sectionHeaderRow}>
-            <Text style={styles.cursiveHeader}>Resource Centre for NGOs</Text>
-          </View>
-          <Text style={styles.sectionSubHeader}>Empowering non-profits with knowledge, tools, and guidance.</Text>
-          <View style={styles.resourceGrid}>
-            <TouchableOpacity style={styles.resourceItem} onPress={() => navigation.navigate('ResourceCenter')}>
-              <Text style={styles.resourceIcon}>⚖️</Text>
-              <View>
-                 <Text style={styles.resourceText}>Legal Corner</Text>
-                 <Text style={styles.resourceSubText}>Access NGO laws & updates</Text>
-              </View>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.resourceItem} onPress={() => navigation.navigate('ResourceCenter')}>
-              <Text style={styles.resourceIcon}>💻</Text>
-              <View>
-                 <Text style={styles.resourceText}>Webinars & Training</Text>
-                 <Text style={styles.resourceSubText}>Enhance skills & workshops</Text>
-              </View>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.resourceItem} onPress={() => navigation.navigate('ResourceCenter')}>
-              <Text style={styles.resourceIcon}>💰</Text>
-              <View>
-                 <Text style={styles.resourceText}>Funding Opportunities</Text>
-                 <Text style={styles.resourceSubText}>Find grants & CSR calls</Text>
-              </View>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.resourceItem} onPress={() => navigation.navigate('ResourceCenter')}>
-              <Text style={styles.resourceIcon}>📜</Text>
-              <View>
-                 <Text style={styles.resourceText}>Government Circulars</Text>
-                 <Text style={styles.resourceSubText}>Latest govt notifications</Text>
-              </View>
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        {/* Success Stories */}
-        <View style={styles.darkSection}>
-           <Text style={styles.cursiveHeaderLight}>Success Stories</Text>
-           <Text style={styles.sectionHeaderLight}>What they are talking about AMP</Text>
-           <View style={styles.testimonialCard}>
-              <Image source={{ uri: SUCCESS_STORIES[0].image }} style={styles.testimonialImage} />
-              <View style={styles.testimonialContent}>
-                 <Text style={styles.testimonialName}>{SUCCESS_STORIES[0].name}</Text>
-                 <Text style={styles.testimonialRole}>{SUCCESS_STORIES[0].role}</Text>
-                 <Text style={styles.testimonialQuote}>"{SUCCESS_STORIES[0].quote}"</Text>
-              </View>
-           </View>
-        </View>
-
-        {/* Footer Stats */}
-        <View style={styles.statsSection}>
-           <View style={styles.statItem}>
-              <Text style={styles.statNumber}>10k</Text>
-              <Text style={styles.statLabel}>Verified NGOs</Text>
-           </View>
-           <View style={styles.statItem}>
-              <Text style={styles.statNumber}>4k</Text>
-              <Text style={styles.statLabel}>Beneficiaries Reached</Text>
-           </View>
-           <View style={styles.statItem}>
-              <Text style={styles.statNumber}>20</Text>
-              <Text style={styles.statLabel}>Upcoming Events</Text>
-           </View>
-           <View style={styles.statItem}>
-              <Text style={styles.statNumber}>230</Text>
-              <Text style={styles.statLabel}>Our Volunteers</Text>
-           </View>
-        </View>
-
+        
+        <View style={{ height: 100 }} />
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  safeArea: {
+  container: {
     flex: 1,
     backgroundColor: colors.background,
   },
+  stickyHeader: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: colors.white,
+    zIndex: 100,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.lightGray,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 4,
+  },
+  stickyHeaderContent: {
+    height: 60,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  stickyHeaderTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: colors.primary,
+  },
   scrollContent: {
-    paddingBottom: 0,
+    paddingTop: 60,
+    paddingBottom: 20,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 16,
-    backgroundColor: colors.white,
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
+    paddingHorizontal: 20,
+    paddingVertical: 16,
   },
   logoText: {
-    fontSize: 18,
+    fontSize: 24,
     fontWeight: 'bold',
     color: colors.primary,
   },
-  headerRight: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-  loginBtn: {
-    minWidth: 70,
-    height: 32,
-    paddingHorizontal: 12,
-  },
-  registerBtn: {
-    minWidth: 80,
-    height: 32,
-    paddingHorizontal: 12,
-  },
-  heroContainer: {
-    height: 300,
-  },
-  heroBackground: {
-    flex: 1,
+  profileIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: colors.secondary,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  heroContent: {
-    alignItems: 'center',
-    padding: 20,
-  },
-  heroPreTitle: {
-    color: '#FFD700',
-    fontSize: 14,
-    fontWeight: 'bold',
-    marginBottom: 8,
-  },
-  heroTitle: {
-    fontSize: 32,
-    fontWeight: 'bold',
+  profileInitials: {
     color: colors.white,
-    textAlign: 'center',
-    marginBottom: 8,
-  },
-  heroSubtitle: {
+    fontWeight: 'bold',
     fontSize: 16,
-    color: colors.white,
-    textAlign: 'center',
+  },
+  heroContainer: {
+    height: 320,
     marginBottom: 24,
   },
+  heroBackground: {
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center',
+  },
+  heroContent: {
+    padding: 24,
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    height: '100%',
+    justifyContent: 'center',
+  },
+  heroPreTitle: {
+    color: colors.secondary,
+    fontSize: 14,
+    fontWeight: '700',
+    marginBottom: 12,
+    letterSpacing: 1,
+    textTransform: 'uppercase',
+  },
+  heroTitle: {
+    color: colors.white,
+    fontSize: 36,
+    fontWeight: '800',
+    textAlign: 'center',
+    marginBottom: 12,
+    lineHeight: 42,
+  },
+  heroSubtitle: {
+    color: colors.white,
+    fontSize: 18,
+    textAlign: 'center',
+    marginBottom: 32,
+    opacity: 0.9,
+    lineHeight: 24,
+  },
   heroButton: {
-    minWidth: 180,
-    paddingHorizontal: 20,
-    backgroundColor: colors.primary,
+    minWidth: 200,
+    height: 56,
+    borderRadius: 28,
   },
   section: {
-    padding: 20,
-    backgroundColor: colors.white,
-    marginBottom: 10,
+    padding: 24,
+    marginBottom: 16,
   },
   welcomeTitle: {
-    fontSize: 16,
-    color: colors.primary,
-    marginBottom: 4,
-    fontFamily: 'System', 
+    fontSize: 28,
+    fontWeight: '800',
+    color: colors.secondary,
+    marginBottom: 8,
   },
   welcomeSubtitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: colors.text,
-    marginBottom: 12,
+    fontSize: 18,
+    color: colors.primary,
+    marginBottom: 16,
+    fontWeight: '600',
   },
   welcomeText: {
-    fontSize: 14,
-    color: colors.gray,
-    lineHeight: 22,
-    marginBottom: 20,
+    fontSize: 16,
+    color: colors.text,
+    lineHeight: 26,
+    marginBottom: 24,
+    opacity: 0.8,
   },
   welcomeActions: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 20,
-    flexWrap: 'wrap',
   },
   discoverButton: {
-    flex: 1,
-    minWidth: 140,
-    height: 40,
-    paddingHorizontal: 16,
-  },
-  statRow: {
-    flex: 1,
-    minWidth: 150,
-  },
-  statText: {
-    fontWeight: 'bold',
-    color: colors.primary,
-  },
-  statSubText: {
-    fontSize: 12,
-    color: colors.gray,
+    marginRight: 20,
   },
   cursiveHeader: {
-    fontSize: 24,
+    fontSize: 28,
     color: colors.primary,
-    marginBottom: 8,
-    fontFamily: 'System', // Placeholder for cursive font
+    marginBottom: 4,
     fontStyle: 'italic',
   },
   sectionSubHeader: {
-    fontSize: 14,
+    fontSize: 16,
     color: colors.gray,
     marginBottom: 20,
   },
   cardsScroll: {
-    flexDirection: 'row',
     marginHorizontal: -20,
     paddingHorizontal: 20,
   },
   partnerCard: {
     width: 280,
-    padding: 24,
-    borderRadius: 16,
+    padding: 20,
+    borderRadius: 12,
     marginRight: 16,
+    height: 220,
+    justifyContent: 'space-between',
   },
   partnerHeader: {
     flexDirection: 'row',
@@ -409,259 +339,48 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   cardIcon: {
-    fontSize: 32,
+    fontSize: 24,
     marginRight: 12,
-    color: colors.white,
   },
   cardTitle: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: 'bold',
     color: colors.white,
-    flex: 1,
   },
   cardDesc: {
+    color: colors.white,
     fontSize: 14,
-    color: 'rgba(255,255,255,0.9)',
     marginBottom: 16,
-  },
-  featureList: {
-    marginBottom: 20,
-  },
-  featureItem: {
-    color: 'rgba(255,255,255,0.8)',
-    fontSize: 12,
-    marginBottom: 4,
+    opacity: 0.9,
   },
   cardButton: {
+    width: '100%',
     backgroundColor: colors.white,
-    height: 40,
   },
   horizontalList: {
-    paddingRight: 20,
-  },
-  featuredCard: {
-    width: 260,
-    backgroundColor: colors.white,
-    borderRadius: 12,
-    marginRight: 16,
-    borderWidth: 1,
-    borderColor: '#eee',
-    overflow: 'hidden',
-  },
-  featuredImage: {
-    width: '100%',
-    height: 140,
-    backgroundColor: colors.lightGray,
-  },
-  featuredContent: {
-    padding: 16,
-  },
-  featuredHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 8,
-  },
-  featuredCategory: {
-    fontSize: 12,
-    color: colors.primary,
-    fontWeight: 'bold',
-  },
-  verifiedBadge: {
-    fontSize: 12,
-    color: colors.success,
-    fontWeight: 'bold',
-  },
-  featuredTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 8,
-    color: colors.text,
-  },
-  featuredDesc: {
-    fontSize: 12,
-    color: colors.gray,
-    marginBottom: 12,
-  },
-  readMoreLink: {
-    fontSize: 12,
-    color: colors.text,
-    fontWeight: '600',
-  },
-  splitSection: {
-    backgroundColor: '#FFF8F8', // Light pinkish bg
-    padding: 20,
+    paddingHorizontal: 20,
   },
   ngoMonthContainer: {
-    marginBottom: 30,
+    backgroundColor: colors.white,
+    padding: 20,
+    borderRadius: 12,
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: colors.lightGray,
   },
   ngoMonthName: {
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: 'bold',
-    marginBottom: 12,
-    color: colors.text,
-  },
-  ngoStat: {
-    fontSize: 14,
-    marginBottom: 8,
-    color: colors.text,
+    color: colors.secondary,
+    marginVertical: 10,
   },
   viewProfileBtn: {
-    minWidth: 140,
-    marginTop: 12,
-    backgroundColor: colors.primary,
-    paddingHorizontal: 16,
-  },
-  eventsContainer: {
     marginTop: 10,
   },
-  eventCard: {
-    width: 200,
-    height: 260,
-    marginRight: 16,
-    borderRadius: 12,
-    overflow: 'hidden',
-  },
-  eventImage: {
-    flex: 1,
-    justifyContent: 'space-between',
-    padding: 12,
-  },
-  eventDateBadge: {
-    backgroundColor: colors.primary,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 4,
-    alignSelf: 'flex-end',
-  },
-  eventDateText: {
-    color: colors.white,
-    fontSize: 10,
-    fontWeight: 'bold',
-  },
-  eventOverlay: {
-    backgroundColor: 'rgba(0,0,0,0.6)',
-    padding: 8,
-    borderRadius: 8,
-  },
-  eventMeta: {
-    color: '#FFD700',
-    fontSize: 10,
-    marginBottom: 4,
-  },
-  eventTitle: {
-    color: colors.white,
-    fontSize: 12,
-    fontWeight: 'bold',
+  eventsContainer: {
+    marginTop: 20,
   },
   viewAllEventsBtn: {
     marginTop: 20,
-    alignSelf: 'center',
-    minWidth: 160,
-    paddingHorizontal: 16,
-  },
-  sectionHeaderRow: {
-    marginBottom: 8,
-  },
-  resourceGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-  },
-  resourceItem: {
-    width: '48%',
-    minWidth: 150,
-    backgroundColor: colors.white,
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 16,
-    borderWidth: 1,
-    borderColor: '#eee',
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-  },
-  resourceIcon: {
-    fontSize: 24,
-    marginRight: 12,
-  },
-  resourceText: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: colors.text,
-    marginBottom: 4,
-  },
-  resourceSubText: {
-    fontSize: 10,
-    color: colors.gray,
-  },
-  darkSection: {
-    backgroundColor: '#222',
-    padding: 30,
-  },
-  cursiveHeaderLight: {
-    fontSize: 24,
-    color: '#FFD700',
-    marginBottom: 8,
-    fontFamily: 'System',
-    fontStyle: 'italic',
-  },
-  sectionHeaderLight: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: colors.white,
-    marginBottom: 24,
-  },
-  testimonialCard: {
-    backgroundColor: colors.white,
-    borderRadius: 16,
-    padding: 20,
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  testimonialImage: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    marginRight: 16,
-  },
-  testimonialContent: {
-    flex: 1,
-  },
-  testimonialName: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: colors.text,
-  },
-  testimonialRole: {
-    fontSize: 12,
-    color: colors.gray,
-    marginBottom: 8,
-  },
-  testimonialQuote: {
-    fontSize: 12,
-    color: colors.text,
-    fontStyle: 'italic',
-  },
-  statsSection: {
-    backgroundColor: '#A72525',
-    padding: 30,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    flexWrap: 'wrap',
-  },
-  statItem: {
-    alignItems: 'center',
-    width: '45%',
-    minWidth: 120,
-    marginBottom: 20,
-  },
-  statNumber: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: colors.white,
-  },
-  statLabel: {
-    fontSize: 12,
-    color: 'rgba(255,255,255,0.8)',
-    marginTop: 4,
   },
 });

@@ -11,13 +11,13 @@ export const LoginScreen = ({ navigation }: any) => {
 
   const handleLogin = () => {
     // TODO: Implement login logic
-    navigation.navigate('Home');
+    navigation.navigate('MainApp');
   };
 
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.navHeader}>
-        <TouchableOpacity onPress={() => navigation.navigate('Home')}>
+        <TouchableOpacity onPress={() => navigation.navigate('MainApp')}>
           <Text style={styles.backLink}>← Back to Home</Text>
         </TouchableOpacity>
       </View>
@@ -74,13 +74,15 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background,
   },
   navHeader: {
-    paddingHorizontal: 20,
-    paddingTop: 10,
+    paddingHorizontal: 24,
+    paddingTop: 16,
   },
+
   backLink: {
     color: colors.primary,
     fontSize: 16,
     fontWeight: '600',
+    paddingVertical: 8,
   },
   container: {
     flex: 1,
@@ -88,31 +90,33 @@ const styles = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
     justifyContent: 'center',
-    padding: 20,
+    padding: 24,
   },
   header: {
-    marginBottom: 40,
+    marginBottom: 48,
     alignItems: 'center',
   },
   title: {
     fontSize: 32,
-    fontWeight: 'bold',
+    fontWeight: '800',
     color: colors.primary,
-    marginBottom: 8,
+    marginBottom: 12,
   },
   subtitle: {
-    fontSize: 16,
+    fontSize: 18,
     color: colors.gray,
   },
   form: {
     width: '100%',
   },
   button: {
-    marginTop: 20,
+    marginTop: 24,
     width: '100%',
+    height: 56,
   },
   secondaryButton: {
-    marginTop: 12,
+    marginTop: 16,
     width: '100%',
+    height: 56,
   },
 });
