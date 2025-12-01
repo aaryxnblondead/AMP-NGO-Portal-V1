@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, KeyboardAvoidingView, Platform, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors } from '../theme/colors';
 import { Button } from '../components/Button';
@@ -22,6 +22,11 @@ export const RegistrationScreen = ({ navigation }: any) => {
 
   return (
     <SafeAreaView style={styles.safeArea}>
+      <View style={styles.navHeader}>
+        <TouchableOpacity onPress={() => navigation.navigate('Home')}>
+          <Text style={styles.backLink}>← Back to Home</Text>
+        </TouchableOpacity>
+      </View>
       <KeyboardAvoidingView 
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.container}
@@ -100,6 +105,15 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background,
   },
+  navHeader: {
+    paddingHorizontal: 20,
+    paddingTop: 10,
+  },
+  backLink: {
+    color: colors.primary,
+    fontSize: 16,
+    fontWeight: '600',
+  },
   container: {
     flex: 1,
   },
@@ -126,6 +140,7 @@ const styles = StyleSheet.create({
   },
   button: {
     marginTop: 20,
+    width: '100%',
   },
   footer: {
     flexDirection: 'row',

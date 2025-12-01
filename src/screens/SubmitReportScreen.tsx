@@ -14,7 +14,7 @@ export const SubmitReportScreen = () => {
         <Input label="Activity Title" placeholder="Enter activity title" />
         <Input label="Date" placeholder="DD/MM/YYYY" />
         <Input label="Description" placeholder="Describe the activity..." multiline numberOfLines={4} style={{ height: 100 }} />
-        <Button title="Submit Report" onPress={() => {}} />
+        <Button title="Submit Report" onPress={() => {}} style={styles.submitButton} />
       </View>
     </ScrollView>
   );
@@ -36,5 +36,9 @@ const styles = StyleSheet.create({
   },
   form: {
     padding: 20,
+  },
+  submitButton: {
+    marginTop: 20,
+    width: '100%',
   },
 });

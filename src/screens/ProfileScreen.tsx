@@ -25,8 +25,8 @@ export const ProfileScreen = () => {
       </View>
 
       <View style={styles.section}>
-        <Button title="Edit Profile" variant="outline" onPress={() => {}} />
-        <Button title="Logout" variant="secondary" style={{ marginTop: 12 }} onPress={() => {}} />
+        <Button title="Edit Profile" variant="outline" onPress={() => {}} style={{ width: '100%' }} />
+        <Button title="Logout" variant="secondary" style={{ marginTop: 12, width: '100%' }} onPress={() => {}} />
       </View>
     </ScrollView>
   );

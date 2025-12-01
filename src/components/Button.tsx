@@ -1,14 +1,15 @@
 import React from 'react';
-import { TouchableOpacity, Text, StyleSheet, ActivityIndicator, TouchableOpacityProps } from 'react-native';
+import { TouchableOpacity, Text, StyleSheet, ActivityIndicator, TouchableOpacityProps, TextStyle } from 'react-native';
 import { colors } from '../theme/colors';
 
 interface ButtonProps extends TouchableOpacityProps {
   title: string;
   loading?: boolean;
   variant?: 'primary' | 'secondary' | 'outline';
+  textStyle?: TextStyle;
 }
 
-export const Button = ({ title, loading, variant = 'primary', style, ...props }: ButtonProps) => {
+export const Button = ({ title, loading, variant = 'primary', style, textStyle, ...props }: ButtonProps) => {
   const getBackgroundColor = () => {
     if (props.disabled) return colors.gray;
     if (variant === 'primary') return colors.primary;
@@ -35,7 +36,7 @@ export const Button = ({ title, loading, variant = 'primary', style, ...props }:
       {loading ? (
         <ActivityIndicator color={getTextColor()} />
       ) : (
-        <Text style={[styles.text, { color: getTextColor() }]}>{title}</Text>
+        <Text style={[styles.text, { color: getTextColor() }, textStyle]}>{title}</Text>
       )}
     </TouchableOpacity>
   );
@@ -47,8 +48,8 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    width: '100%',
+    paddingHorizontal: 16,
+    minWidth: 64,
   },
   outlineButton: {
     borderWidth: 1,
